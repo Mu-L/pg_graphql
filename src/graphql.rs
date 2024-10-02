@@ -4,6 +4,7 @@ use cached::SizedCache;
 use itertools::Itertools;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
+use std::fmt::Display;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -345,15 +346,6 @@ pub trait ___Field {
     fn deprecation_reason(&self) -> Option<String> {
         None
     }
-
-    fn arg_map(&self) -> HashMap<String, __InputValue> {
-        let mut amap = HashMap::new();
-        let args = self.args();
-        for arg in args {
-            amap.insert(arg.name_.clone(), arg.clone());
-        }
-        amap
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -528,8 +520,10 @@ pub enum __Type {
     // Constant
     PageInfo(PageInfoType),
     // Introspection
+    #[allow(clippy::enum_variant_names)]
     __TypeKind(__TypeKindType),
     __Schema(__SchemaType),
+    #[allow(clippy::enum_variant_names)]
     __Type(__TypeType),
     __Field(__FieldType),
     __InputValue(__InputValueType),
@@ -1952,13 +1946,19 @@ pub fn sql_column_to_graphql_type(col: &Column, schema: &Arc<__Schema>) -> Optio
 }
 
 impl NodeType {
-    fn foreign_key_type(&self, fkey: &ForeignKey, type_: __Type) -> __Type {
+    fn foreign_key_type(
+        &self,
+        fkey: &ForeignKey,
+        type_: __Type,
+        is_reverse_reference: bool,
+    ) -> __Type {
         if fkey.local_table_meta.column_names.iter().any(|colname| {
             self.table
                 .columns
                 .iter()
                 .any(|c| &c.name == colname && c.is_not_null)
                 && !fkey.referenced_table_meta.is_rls_enabled
+                && !is_reverse_reference
         }) {
             __Type::NonNull(NonNullType {
                 type_: Box::new(type_),
@@ -2127,6 +2127,7 @@ impl ___Type for NodeType {
                     reverse_reference: Some(reverse_reference),
                     schema: Arc::clone(&self.schema),
                 }),
+                reverse_reference,
             );
 
             let relation_field = __Field {
@@ -2180,7 +2181,11 @@ impl ___Type for NodeType {
                     };
                     let connection_args = connection_type.get_connection_input_args();
 
-                    let type_ = self.foreign_key_type(fkey, __Type::Connection(connection_type));
+                    let type_ = self.foreign_key_type(
+                        fkey,
+                        __Type::Connection(connection_type),
+                        reverse_reference,
+                    );
 
                     __Field {
                         name_: self
@@ -2202,6 +2207,7 @@ impl ___Type for NodeType {
                             reverse_reference: Some(reverse_reference),
                             schema: Arc::clone(&self.schema),
                         }),
+                        reverse_reference,
                     );
 
                     __Field {
@@ -3342,9 +3348,9 @@ pub enum FilterOp {
     Overlap,
 }
 
-impl ToString for FilterOp {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for FilterOp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let res = match self {
             Self::Equal => "eq",
             Self::NotEqual => "neq",
             Self::LessThan => "lt",
@@ -3361,8 +3367,8 @@ impl ToString for FilterOp {
             Self::Contains => "contains",
             Self::ContainedBy => "containedBy",
             Self::Overlap => "overlaps",
-        }
-        .to_string()
+        };
+        write!(f, "{res}")
     }
 }
 
@@ -3604,7 +3610,7 @@ impl ___Type for FilterTypeType {
                 ]
             }
             FilterableType::List(list_type) => {
-                let supported_ops = vec![
+                let supported_ops = [
                     FilterOp::Contains,
                     FilterOp::ContainedBy,
                     FilterOp::Equal,
@@ -3717,7 +3723,7 @@ impl ___Type for FilterEntityType {
                         }),
                         __Type::List(l) => match l.type_.nullable_type() {
                             // Only non-json scalars are supported in list types
-                            __Type::Scalar(s) => match s {
+                            __Type::Scalar(
                                 Scalar::Int
                                 | Scalar::Float
                                 | Scalar::String(_)
@@ -3727,18 +3733,17 @@ impl ___Type for FilterEntityType {
                                 | Scalar::BigFloat
                                 | Scalar::Time
                                 | Scalar::Date
-                                | Scalar::Datetime => Some(__InputValue {
-                                    name_: column_graphql_name,
-                                    type_: __Type::FilterType(FilterTypeType {
-                                        entity: FilterableType::List(l),
-                                        schema: Arc::clone(&self.schema),
-                                    }),
-                                    description: None,
-                                    default_value: None,
-                                    sql_type: Some(NodeSQLType::Column(Arc::clone(col))),
+                                | Scalar::Datetime,
+                            ) => Some(__InputValue {
+                                name_: column_graphql_name,
+                                type_: __Type::FilterType(FilterTypeType {
+                                    entity: FilterableType::List(l),
+                                    schema: Arc::clone(&self.schema),
                                 }),
-                                _ => None,
-                            },
+                                description: None,
+                                default_value: None,
+                                sql_type: Some(NodeSQLType::Column(Arc::clone(col))),
+                            }),
                             _ => None,
                         },
                         _ => None,

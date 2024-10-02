@@ -88,4 +88,7 @@
 - bugfix: UDF argument with a complex default expression was marked as required
 - bugfix: not null foreign keys referencing tables with RLS are marked as nullable
 
+## 1.5.8
+- bugfix: relational query with more than 100 fields fails
+
 ## master
