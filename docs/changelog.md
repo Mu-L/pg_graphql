@@ -121,7 +121,9 @@
 
 - bugfix: description field was missing in schema introspection
 - bugfix: oids overflowed when loading context
+- bugfix: return non-nullable connection types in introspection queries
 - feature: Add support for aggregate functions (count, sum, avg, min, max) on collection types
 - feature: Add support for per table and view `max_row` directives
+- feature: Add support for Postgres 18
 
 ## master
