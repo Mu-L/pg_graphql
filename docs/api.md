@@ -142,7 +142,7 @@ create table "Blog"(
 
         """Sort order to apply to the collection"""
         orderBy: [BlogOrderBy!]
-      ): BlogConnection
+      ): BlogConnection!
     }
     ```
 
@@ -464,7 +464,7 @@ Paginating forwards and backwards through collections is handled using the `firs
 
         ...truncated...
 
-      ): BlogConnection
+      ): BlogConnection!
     }
     ```
 
@@ -681,7 +681,7 @@ To filter the result set, use the `filter` argument.
 
         ...truncated...
 
-      ): BlogConnection
+      ): BlogConnection!
     }
     ```
 
@@ -1652,7 +1652,7 @@ The default order of results is defined by the underlying table's primary key co
 
         ...truncated...
 
-      ): BlogConnection
+      ): BlogConnection!
     }
     ```
 
@@ -2208,7 +2208,7 @@ create table "BlogPost"(
 
         """Sort order to apply to the collection"""
         orderBy: [BlogPostOrderBy!]
-      ): BlogPostConnection
+      ): BlogPostConnection!
 
     }
     ```
