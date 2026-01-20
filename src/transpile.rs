@@ -1533,10 +1533,6 @@ impl NodeByPkBuilder {
             field_clauses.push(selection.to_sql(block_name, param_context)?);
         }
 
-        if field_clauses.is_empty() {
-            return Ok("'{}'::jsonb".to_string());
-        }
-
         let fields_clause = field_clauses.join(", ");
         Ok(format!("jsonb_build_object({fields_clause})"))
     }
