@@ -154,4 +154,60 @@ begin;
  }
 (1 row)
 
+    -- Reset data for byPk tests
+    insert into public.account(id, parent_id)
+    values
+        (1, 1),
+        (2, 1);
+    -- Test __typename with byPk query
+    select jsonb_pretty(
+        graphql.resolve($$
+    query {
+      accountByPk(id: 1) {
+        __typename
+        id
+        parent {
+          __typename
+          id
+        }
+      }
+    }
+        $$)
+    );
+              jsonb_pretty               
+-----------------------------------------
+ {                                      +
+     "data": {                          +
+         "accountByPk": {               +
+             "id": 1,                   +
+             "parent": {                +
+                 "id": 1,               +
+                 "__typename": "Account"+
+             },                         +
+             "__typename": "Account"    +
+         }                              +
+     }                                  +
+ }
+(1 row)
+
+    -- Test __typename with byPk query returning null
+    select jsonb_pretty(
+        graphql.resolve($$
+    query {
+      accountByPk(id: 999) {
+        __typename
+        id
+      }
+    }
+        $$)
+    );
+        jsonb_pretty         
+-----------------------------
+ {                          +
+     "data": {              +
+         "accountByPk": null+
+     }                      +
+ }
+(1 row)
+
 rollback;
