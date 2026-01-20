@@ -444,4 +444,141 @@ begin;
         $$)
     );
 
+    -- Test 22: nodeByPk with function returning array type
+    create function public._book_titles(rec public.author)
+        returns text[]
+        stable
+        language sql
+    as $$
+        select array_agg(title) from book where author_id = rec.id
+    $$;
+
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                bookTitles
+              }
+            }
+        $$)
+    );
+
+    -- Test 23: nodeByPk with function returning node type (single related record)
+    create function public._latest_book(rec public.author)
+        returns public.book
+        stable
+        language sql
+    as $$
+        select * from book where author_id = rec.id order by id desc limit 1
+    $$;
+
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                latestBook {
+                  id
+                  title
+                }
+              }
+            }
+        $$)
+    );
+
+    -- Test 24: nodeByPk with function returning node type, nested selection
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 2) {
+                id
+                name
+                latestBook {
+                  id
+                  title
+                  author {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+        $$)
+    );
+
+    -- Test 25: nodeByPk with function returning connection type (setof)
+    create function public._popular_books(rec public.author)
+        returns setof public.book
+        stable
+        language sql
+    as $$
+        select * from book where author_id = rec.id and id <= 2
+    $$;
+
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                popularBooks {
+                  edges {
+                    node {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            }
+        $$)
+    );
+
+    -- Test 26: nodeByPk with function returning connection type with pagination
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                popularBooks(first: 1) {
+                  pageInfo {
+                    hasNextPage
+                    hasPreviousPage
+                  }
+                  edges {
+                    node {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            }
+        $$)
+    );
+
+    -- Test 27: nodeByPk with function returning connection type with filter
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                popularBooks(filter: {id: {eq: 1}}) {
+                  edges {
+                    node {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            }
+        $$)
+    );
+
 rollback;

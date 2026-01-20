@@ -785,4 +785,261 @@ begin;
  }
 (1 row)
 
+    -- Test 22: nodeByPk with function returning array type
+    create function public._book_titles(rec public.author)
+        returns text[]
+        stable
+        language sql
+    as $$
+        select array_agg(title) from book where author_id = rec.id
+    $$;
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                bookTitles
+              }
+            }
+        $$)
+    );
+               jsonb_pretty               
+------------------------------------------
+ {                                       +
+     "data": {                           +
+         "authorByPk": {                 +
+             "id": 1,                    +
+             "name": "Jane Austen",      +
+             "bookTitles": [             +
+                 "Pride and Prejudice",  +
+                 "Sense and Sensibility",+
+                 "Emma"                  +
+             ]                           +
+         }                               +
+     }                                   +
+ }
+(1 row)
+
+    -- Test 23: nodeByPk with function returning node type (single related record)
+    create function public._latest_book(rec public.author)
+        returns public.book
+        stable
+        language sql
+    as $$
+        select * from book where author_id = rec.id order by id desc limit 1
+    $$;
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                latestBook {
+                  id
+                  title
+                }
+              }
+            }
+        $$)
+    );
+            jsonb_pretty            
+------------------------------------
+ {                                 +
+     "data": {                     +
+         "authorByPk": {           +
+             "id": 1,              +
+             "name": "Jane Austen",+
+             "latestBook": {       +
+                 "id": 3,          +
+                 "title": "Emma"   +
+             }                     +
+         }                         +
+     }                             +
+ }
+(1 row)
+
+    -- Test 24: nodeByPk with function returning node type, nested selection
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 2) {
+                id
+                name
+                latestBook {
+                  id
+                  title
+                  author {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+        $$)
+    );
+                  jsonb_pretty                  
+------------------------------------------------
+ {                                             +
+     "data": {                                 +
+         "authorByPk": {                       +
+             "id": 2,                          +
+             "name": "Charles Dickens",        +
+             "latestBook": {                   +
+                 "id": 5,                      +
+                 "title": "Great Expectations",+
+                 "author": {                   +
+                     "id": 2,                  +
+                     "name": "Charles Dickens" +
+                 }                             +
+             }                                 +
+         }                                     +
+     }                                         +
+ }
+(1 row)
+
+    -- Test 25: nodeByPk with function returning connection type (setof)
+    create function public._popular_books(rec public.author)
+        returns setof public.book
+        stable
+        language sql
+    as $$
+        select * from book where author_id = rec.id and id <= 2
+    $$;
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                popularBooks {
+                  edges {
+                    node {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            }
+        $$)
+    );
+                         jsonb_pretty                         
+--------------------------------------------------------------
+ {                                                           +
+     "data": {                                               +
+         "authorByPk": {                                     +
+             "id": 1,                                        +
+             "name": "Jane Austen",                          +
+             "popularBooks": {                               +
+                 "edges": [                                  +
+                     {                                       +
+                         "node": {                           +
+                             "id": 1,                        +
+                             "title": "Pride and Prejudice"  +
+                         }                                   +
+                     },                                      +
+                     {                                       +
+                         "node": {                           +
+                             "id": 2,                        +
+                             "title": "Sense and Sensibility"+
+                         }                                   +
+                     }                                       +
+                 ]                                           +
+             }                                               +
+         }                                                   +
+     }                                                       +
+ }
+(1 row)
+
+    -- Test 26: nodeByPk with function returning connection type with pagination
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                popularBooks(first: 1) {
+                  pageInfo {
+                    hasNextPage
+                    hasPreviousPage
+                  }
+                  edges {
+                    node {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            }
+        $$)
+    );
+                        jsonb_pretty                        
+------------------------------------------------------------
+ {                                                         +
+     "data": {                                             +
+         "authorByPk": {                                   +
+             "id": 1,                                      +
+             "name": "Jane Austen",                        +
+             "popularBooks": {                             +
+                 "edges": [                                +
+                     {                                     +
+                         "node": {                         +
+                             "id": 1,                      +
+                             "title": "Pride and Prejudice"+
+                         }                                 +
+                     }                                     +
+                 ],                                        +
+                 "pageInfo": {                             +
+                     "hasNextPage": true,                  +
+                     "hasPreviousPage": false              +
+                 }                                         +
+             }                                             +
+         }                                                 +
+     }                                                     +
+ }
+(1 row)
+
+    -- Test 27: nodeByPk with function returning connection type with filter
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              authorByPk(id: 1) {
+                id
+                name
+                popularBooks(filter: {id: {eq: 1}}) {
+                  edges {
+                    node {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            }
+        $$)
+    );
+                        jsonb_pretty                        
+------------------------------------------------------------
+ {                                                         +
+     "data": {                                             +
+         "authorByPk": {                                   +
+             "id": 1,                                      +
+             "name": "Jane Austen",                        +
+             "popularBooks": {                             +
+                 "edges": [                                +
+                     {                                     +
+                         "node": {                         +
+                             "id": 1,                      +
+                             "title": "Pride and Prejudice"+
+                         }                                 +
+                     }                                     +
+                 ]                                         +
+             }                                             +
+         }                                                 +
+     }                                                     +
+ }
+(1 row)
+
 rollback;
