@@ -1527,7 +1527,7 @@ impl NodeByPkBuilder {
         &self,
         block_name: &str,
         param_context: &mut ParamContext,
-    ) -> Result<String, String> {
+    ) -> GraphQLResult<String> {
         let mut field_clauses = vec![];
         for selection in &self.selections {
             field_clauses.push(selection.to_sql(block_name, param_context)?);
@@ -1545,7 +1545,7 @@ impl NodeByPkBuilder {
         &self,
         block_name: &str,
         param_context: &mut ParamContext,
-    ) -> Result<String, String> {
+    ) -> GraphQLResult<String> {
         let mut conditions = Vec::new();
 
         for (column_name, value) in &self.pk_values {
@@ -1556,7 +1556,7 @@ impl NodeByPkBuilder {
                     .columns
                     .iter()
                     .find(|c| &c.name == column_name)
-                    .ok_or_else(|| format!("Column {} not found", column_name))?
+                    .ok_or_else(|| GraphQLError::internal(format!("Column {} not found", column_name)))?
                     .type_name,
             )?;
 
@@ -1573,7 +1573,7 @@ impl NodeByPkBuilder {
 }
 
 impl QueryEntrypoint for NodeByPkBuilder {
-    fn to_sql_entrypoint(&self, param_context: &mut ParamContext) -> Result<String, String> {
+    fn to_sql_entrypoint(&self, param_context: &mut ParamContext) -> GraphQLResult<String> {
         let quoted_block_name = rand_block_name();
         let quoted_schema = quote_ident(&self.table.schema);
         let quoted_table = quote_ident(&self.table.name);
@@ -1613,14 +1613,14 @@ impl NodeIdInstance {
 
         let pkey = table
             .primary_key()
-            .ok_or_else(|| "Found table with no primary key".to_string())?;
+            .ok_or_else(|| GraphQLError::validation("Found table with no primary key"))?;
 
         if pkey.column_names.len() != self.values.len() {
-            return Err(format!(
+            return Err(GraphQLError::validation(format!(
                 "Primary key column count mismatch. Expected {}, provided {}",
                 pkey.column_names.len(),
                 self.values.len()
-            ));
+            )));
         }
 
         let mut conditions = vec![];
@@ -1630,7 +1630,7 @@ impl NodeIdInstance {
                 .columns
                 .iter()
                 .find(|c| &c.name == column_name)
-                .ok_or(format!("Primary key column {} not found", column_name))?;
+                .ok_or_else(|| GraphQLError::validation(format!("Primary key column {} not found", column_name)))?;
 
             let value_clause = param_context.clause_for(value, &column.type_name)?;
 

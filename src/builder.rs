@@ -1068,16 +1068,6 @@ pub struct NodeIdInstance {
     pub values: Vec<serde_json::Value>,
 }
 
-impl NodeIdInstance {
-    pub fn validate(&self, table: &Table) -> Result<(), String> {
-        // Validate that nodeId belongs to the table being queried
-        if self.schema_name != table.schema || self.table_name != table.name {
-            return Err("nodeId belongs to a different collection".to_string());
-        }
-        Ok(())
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct NodeIdBuilder {
     pub alias: String,
@@ -2185,7 +2175,7 @@ pub fn to_node_by_pk_builder<'a, T>(
     fragment_definitions: &Vec<FragmentDefinition<'a, T>>,
     variables: &serde_json::Value,
     variable_definitions: &Vec<VariableDefinition<'a, T>>,
-) -> Result<NodeByPkBuilder, String>
+) -> GraphQLResult<NodeByPkBuilder>
 where
     T: Text<'a> + Eq + AsRef<str> + Clone,
     T::Value: Hash,
@@ -2197,7 +2187,7 @@ where
         __Type::Node(xtype) => {
             let type_name = xtype
                 .name()
-                .ok_or("Encountered type without name in node_by_pk builder")?;
+                .ok_or_else(|| GraphQLError::internal("Encountered type without name in node_by_pk builder"))?;
 
             let field_map = field_map(&__Type::Node(xtype.clone()));
 
@@ -2205,7 +2195,7 @@ where
             let pkey = xtype
                 .table
                 .primary_key()
-                .ok_or("Table has no primary key".to_string())?;
+                .ok_or_else(|| GraphQLError::validation("Table has no primary key"))?;
 
             // Create a map of expected field arguments based on the field's arg definitions
             let mut pk_arg_map = HashMap::new();
@@ -2231,7 +2221,7 @@ where
 
             // Need values for all primary key columns
             if pk_values.len() != pkey.column_names.len() {
-                return Err("All primary key columns must be provided".to_string());
+                return Err(GraphQLError::argument("All primary key columns must be provided"));
             }
 
             let mut builder_fields = vec![];
@@ -2245,8 +2235,7 @@ where
             for selection_field in selection_fields {
                 match field_map.get(selection_field.name.as_ref()) {
                     None => {
-                        return Err(format!(
-                            "Unknown field '{}' on type '{}'",
+                        return Err(GraphQLError::field_not_found(
                             selection_field.name.as_ref(),
                             &type_name
                         ))
@@ -2287,9 +2276,9 @@ where
                                             FunctionSelection::Connection(connection_builder)
                                         }
                                         _ => {
-                                            return Err(
-                                                "invalid return type from function".to_string()
-                                            )
+                                            return Err(GraphQLError::type_error(
+                                                "invalid return type from function"
+                                            ))
                                         }
                                     };
                                     NodeSelection::Function(FunctionBuilder {
@@ -2337,10 +2326,10 @@ where
                                         NodeSelection::Node(node_builder?)
                                     }
                                     _ => {
-                                        return Err(format!(
+                                        return Err(GraphQLError::type_error(format!(
                                             "unexpected field type on node {}",
                                             f.name()
-                                        ));
+                                        )));
                                     }
                                 },
                             },
@@ -2357,7 +2346,7 @@ where
                 selections: builder_fields,
             })
         }
-        _ => Err("cannot build query for non-node type".to_string()),
+        _ => Err(GraphQLError::type_error("cannot build query for non-node type")),
     }
 }
 
