@@ -258,55 +258,23 @@ where
                             }
                         }
                         __Type::Node(_) => {
-                            // Determine if this is a primary key query field
-                            let has_pk_args = !field_def.args().is_empty()
-                                && field_def.args().iter().all(|arg| {
-                                    // All PK field args have a SQL Column type
-                                    arg.sql_type.is_some()
-                                        && matches!(
-                                            arg.sql_type.as_ref().unwrap(),
-                                            NodeSQLType::Column(_)
-                                        )
-                                });
+                            // Node types at Query level are *ByPk fields with primary key column args
+                            let node_by_pk_builder = to_node_by_pk_builder(
+                                field_def,
+                                selection,
+                                &fragment_definitions,
+                                variables,
+                                variable_definitions,
+                            );
 
-                            if has_pk_args {
-                                let node_by_pk_builder = to_node_by_pk_builder(
-                                    field_def,
-                                    selection,
-                                    &fragment_definitions,
-                                    variables,
-                                    variable_definitions,
-                                );
-
-                                match node_by_pk_builder {
-                                    Ok(builder) => match builder.execute() {
-                                        Ok(d) => {
-                                            res_data[alias_or_name(selection)] = d;
-                                        }
-                                        Err(msg) => res_errors.push(ErrorMessage { message: msg.to_string() }),
-                                    },
+                            match node_by_pk_builder {
+                                Ok(builder) => match builder.execute() {
+                                    Ok(d) => {
+                                        res_data[alias_or_name(selection)] = d;
+                                    }
                                     Err(msg) => res_errors.push(ErrorMessage { message: msg.to_string() }),
-                                }
-                            } else {
-                                // Regular node access
-                                let node_builder = to_node_builder(
-                                    field_def,
-                                    selection,
-                                    &fragment_definitions,
-                                    variables,
-                                    &[],
-                                    variable_definitions,
-                                );
-
-                                match node_builder {
-                                    Ok(builder) => match builder.execute() {
-                                        Ok(d) => {
-                                            res_data[alias_or_name(selection)] = d;
-                                        }
-                                        Err(msg) => res_errors.push(ErrorMessage { message: msg.to_string() }),
-                                    },
-                                    Err(msg) => res_errors.push(ErrorMessage { message: msg.to_string() }),
-                                }
+                                },
+                                Err(msg) => res_errors.push(ErrorMessage { message: msg.to_string() }),
                             }
                         }
                         __Type::__Type(_) => {
