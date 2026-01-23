@@ -1,6 +1,6 @@
 use bimap::BiBTreeMap;
-use cached::proc_macro::cached;
 use cached::SizedCache;
+use cached::proc_macro::cached;
 use lazy_static::lazy_static;
 use pgrx::*;
 use serde::{Deserialize, Serialize};
@@ -929,15 +929,20 @@ pub fn load_sql_context(_config: &Config) -> GraphQLResult<Arc<Context>> {
                 // We weren't able to find the OID of the element type, which is also odd because we just got
                 // it from the context. This means it's a bug as well. Report it.
                 pgrx::warning!(
-                        "Assertion violation: referenced element type with OID {} of array type with OID {} is not found",
-                        element_oid, array_oid);
+                    "Assertion violation: referenced element type with OID {} of array type with OID {} is not found",
+                    element_oid,
+                    array_oid
+                );
                 continue;
             }
 
             // Here we are asserting that we did in fact return the element type back to the list. Part of being
             // defensive here.
             if !context.types.contains_key(&element_oid) {
-                pgrx::warning!("Assertion violation: referenced element type with OID {} was not returned to the list of types", element_oid );
+                pgrx::warning!(
+                    "Assertion violation: referenced element type with OID {} was not returned to the list of types",
+                    element_oid
+                );
                 continue;
             }
         }
@@ -976,11 +981,11 @@ pub fn load_sql_context(_config: &Config) -> GraphQLResult<Arc<Context>> {
             functions.push(function);
         }
         for table in &mut context.tables.values_mut() {
-            if let Some(table) = Arc::get_mut(table) {
-                if let Some(functions) = arg_type_to_func.get(&table.reltype) {
-                    for function in functions {
-                        table.functions.push(Arc::clone(function));
-                    }
+            if let Some(table) = Arc::get_mut(table)
+                && let Some(functions) = arg_type_to_func.get(&table.reltype)
+            {
+                for function in functions {
+                    table.functions.push(Arc::clone(function));
                 }
             }
         }

@@ -15,7 +15,7 @@ use graphql_parser::query::{
     Text, VariableDefinition,
 };
 use itertools::Itertools;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[allow(non_snake_case)]
 pub fn resolve_inner<'a, T>(
@@ -97,7 +97,7 @@ where
                     errors: Omit::Present(vec![ErrorMessage {
                         message: message.to_string(),
                     }]),
-                }
+                };
             }
         }
     }
@@ -179,7 +179,7 @@ where
                 errors: Omit::Present(vec![ErrorMessage {
                     message: err.to_string(),
                 }]),
-            }
+            };
         }
     };
 
@@ -415,7 +415,7 @@ where
                 errors: Omit::Present(vec![ErrorMessage {
                     message: err.to_string(),
                 }]),
-            }
+            };
         }
     };
 

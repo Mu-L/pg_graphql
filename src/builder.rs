@@ -1,4 +1,6 @@
-use crate::constants::{aggregate, args, connection, introspection, mutation, page_info, pagination};
+use crate::constants::{
+    aggregate, args, connection, introspection, mutation, page_info, pagination,
+};
 use crate::error::{GraphQLError, GraphQLResult};
 use crate::graphql::*;
 use crate::gson;
@@ -93,7 +95,7 @@ where
             return Err(GraphQLError::internal(format!(
                 "Internal error 1: {}",
                 arg_name
-            )))
+            )));
         }
     };
 
@@ -147,18 +149,23 @@ fn parse_node_id(encoded: gson::Value) -> GraphQLResult<NodeIdInstance> {
         _ => {
             return Err(GraphQLError::argument(
                 "Invalid value passed to nodeId argument, Error 1",
-            ))
+            ));
         }
     };
 
-    let node_id_json_string_utf8: Vec<u8> = base64::decode(node_id_base64_encoded_string)
-        .map_err(|_| GraphQLError::validation("Invalid value passed to nodeId argument. Error 2"))?;
+    let node_id_json_string_utf8: Vec<u8> =
+        base64::decode(node_id_base64_encoded_string).map_err(|_| {
+            GraphQLError::validation("Invalid value passed to nodeId argument. Error 2")
+        })?;
 
-    let node_id_json_string: &str = str::from_utf8(&node_id_json_string_utf8)
-        .map_err(|_| GraphQLError::validation("Invalid value passed to nodeId argument. Error 3"))?;
+    let node_id_json_string: &str = str::from_utf8(&node_id_json_string_utf8).map_err(|_| {
+        GraphQLError::validation("Invalid value passed to nodeId argument. Error 3")
+    })?;
 
-    let node_id_json: serde_json::Value = serde_json::from_str(node_id_json_string)
-        .map_err(|_| GraphQLError::validation("Invalid value passed to nodeId argument. Error 4"))?;
+    let node_id_json: serde_json::Value =
+        serde_json::from_str(node_id_json_string).map_err(|_| {
+            GraphQLError::validation("Invalid value passed to nodeId argument. Error 4")
+        })?;
 
     match node_id_json {
         serde_json::Value::Array(x_arr) => {
@@ -278,7 +285,7 @@ where
                                     None => {
                                         return Err(GraphQLError::validation(
                                             "Insert re-validation error 3",
-                                        ))
+                                        ));
                                     }
                                 };
 
@@ -295,7 +302,7 @@ where
                                 _ => {
                                     return Err(GraphQLError::validation(
                                         "Insert re-validation error 4",
-                                    ))
+                                    ));
                                 }
                             }
                         }
@@ -379,7 +386,7 @@ where
                         _ => {
                             return Err(GraphQLError::type_error(
                                 "unexpected field type on insert response",
-                            ))
+                            ));
                         }
                     }),
                 }
@@ -434,8 +441,13 @@ fn read_argument_set<'a, T>(
 where
     T: Text<'a> + Eq + AsRef<str>,
 {
-    let validated: gson::Value =
-        read_argument(args::SET, field, query_field, variables, variable_definitions)?;
+    let validated: gson::Value = read_argument(
+        args::SET,
+        field,
+        query_field,
+        variables,
+        variable_definitions,
+    )?;
 
     let update_type: UpdateInputType = match field
         .get_arg(args::SET)
@@ -552,7 +564,7 @@ where
                         _ => {
                             return Err(GraphQLError::type_error(
                                 "unexpected field type on update response",
-                            ))
+                            ));
                         }
                     }),
                 }
@@ -656,7 +668,7 @@ where
                         _ => {
                             return Err(GraphQLError::type_error(
                                 "unexpected field type on delete response",
-                            ))
+                            ));
                         }
                     }),
                 }
@@ -1161,7 +1173,7 @@ fn create_filters(
             None => {
                 return Err(GraphQLError::validation(
                     "Filter re-validation error in filter_iv",
-                ))
+                ));
             }
         };
 
@@ -1244,7 +1256,7 @@ fn create_filters(
             _ => {
                 return Err(GraphQLError::validation(
                     "Filter re-validation errror op_to_value map",
-                ))
+                ));
             }
         }
     }
@@ -1268,7 +1280,7 @@ fn create_filter_builder_elem(
         _ => {
             return Err(GraphQLError::validation(
                 "Filter type error, attempted filter on non-column",
-            ))
+            ));
         }
     })
 }
@@ -1323,7 +1335,7 @@ where
                                 _ => {
                                     return Err(GraphQLError::validation(
                                         "Order re-validation error 6",
-                                    ))
+                                    ));
                                 }
                             };
                             let column_input_value: &__InputValue =
@@ -1332,7 +1344,7 @@ where
                                     None => {
                                         return Err(GraphQLError::validation(
                                             "Order re-validation error 3",
-                                        ))
+                                        ));
                                     }
                                 };
 
@@ -1347,7 +1359,7 @@ where
                                 _ => {
                                     return Err(GraphQLError::validation(
                                         "Order re-validation error 4",
-                                    ))
+                                    ));
                                 }
                             }
                         }
@@ -1409,7 +1421,7 @@ where
             return Err(GraphQLError::internal(format!(
                 "Could not argument {}",
                 arg_name
-            )))
+            )));
         }
     };
 
@@ -1450,20 +1462,31 @@ where
         __Type::Connection(xtype) => {
             // Raise for disallowed arguments
             let mut allowed_args = vec![
-                pagination::FIRST, pagination::LAST, pagination::BEFORE, pagination::AFTER, pagination::OFFSET, args::FILTER, args::ORDER_BY,
+                pagination::FIRST,
+                pagination::LAST,
+                pagination::BEFORE,
+                pagination::AFTER,
+                pagination::OFFSET,
+                args::FILTER,
+                args::ORDER_BY,
             ];
             allowed_args.extend(extra_allowed_args);
             restrict_allowed_arguments(&allowed_args, query_field)?;
 
             // TODO: only one of first/last, before/after provided
-            let first: gson::Value =
-                read_argument(pagination::FIRST, field, query_field, variables, variable_definitions)?;
+            let first: gson::Value = read_argument(
+                pagination::FIRST,
+                field,
+                query_field,
+                variables,
+                variable_definitions,
+            )?;
             let first: Option<u64> = match first {
                 gson::Value::Absent | gson::Value::Null => None,
                 gson::Value::Number(gson::Number::Integer(n)) if n < 0 => {
                     return Err(GraphQLError::validation(
                         "`first` must be an unsigned integer",
-                    ))
+                    ));
                 }
                 gson::Value::Number(gson::Number::Integer(n)) => Some(n as u64),
                 _ => {
@@ -1473,14 +1496,19 @@ where
                 }
             };
 
-            let last: gson::Value =
-                read_argument(pagination::LAST, field, query_field, variables, variable_definitions)?;
+            let last: gson::Value = read_argument(
+                pagination::LAST,
+                field,
+                query_field,
+                variables,
+                variable_definitions,
+            )?;
             let last: Option<u64> = match last {
                 gson::Value::Absent | gson::Value::Null => None,
                 gson::Value::Number(gson::Number::Integer(n)) if n < 0 => {
                     return Err(GraphQLError::validation(
                         "`last` must be an unsigned integer",
-                    ))
+                    ));
                 }
                 gson::Value::Number(gson::Number::Integer(n)) => Some(n as u64),
                 _ => {
@@ -1502,7 +1530,7 @@ where
                 gson::Value::Number(gson::Number::Integer(n)) if n < 0 => {
                     return Err(GraphQLError::validation(
                         "`offset` must be an unsigned integer",
-                    ))
+                    ));
                 }
                 gson::Value::Number(gson::Number::Integer(n)) => Some(n as u64),
                 _ => {
@@ -1528,8 +1556,13 @@ where
                 variables,
                 variable_definitions,
             )?;
-            let after: Option<Cursor> =
-                read_argument_cursor(pagination::AFTER, field, query_field, variables, variable_definitions)?;
+            let after: Option<Cursor> = read_argument_cursor(
+                pagination::AFTER,
+                field,
+                query_field,
+                variables,
+                variable_definitions,
+            )?;
 
             // Validate compatible input arguments
             if first.is_some() && last.is_some() {
@@ -1633,7 +1666,7 @@ where
                             return Err(GraphQLError::internal(format!(
                                 "unknown field type on connection: {}",
                                 selection_field.name.as_ref()
-                            )))
+                            )));
                         }
                     }),
                 }
@@ -1746,7 +1779,7 @@ where
                 return Err(GraphQLError::internal(format!(
                     "Unknown aggregate field: {}",
                     field_name
-                )))
+                )));
             }
         })
     }
@@ -1864,7 +1897,7 @@ where
                         _ => {
                             return Err(GraphQLError::type_error(
                                 "unexpected field type on pageInfo",
-                            ))
+                            ));
                         }
                     }),
                 }
@@ -1936,7 +1969,7 @@ where
                             _ => {
                                 return Err(GraphQLError::type_error(
                                     "unexpected field type on edge",
-                                ))
+                                ));
                             }
                         },
                     }),
@@ -2045,7 +2078,7 @@ where
                     "Unknown field '{}' on type '{}'",
                     selection_field.name.as_ref(),
                     &type_name
-                )))
+                )));
             }
             Some(f) => {
                 let alias = alias_or_name(&selection_field);
@@ -2086,7 +2119,7 @@ where
                                 _ => {
                                     return Err(GraphQLError::validation(
                                         "invalid return type from function",
-                                    ))
+                                    ));
                                 }
                             };
                             NodeSelection::Function(FunctionBuilder {
@@ -2343,7 +2376,7 @@ impl __Schema {
                     return Err(GraphQLError::internal(format!(
                         "unknown field in __EnumValue: {}",
                         enum_value_field_name
-                    )))
+                    )));
                 }
             };
 
@@ -2409,7 +2442,7 @@ impl __Schema {
                     return Err(GraphQLError::internal(format!(
                         "unknown field in __InputValue: {}",
                         input_value_field_name
-                    )))
+                    )));
                 }
             };
 
@@ -2490,7 +2523,7 @@ impl __Schema {
                     return Err(GraphQLError::internal(format!(
                         "unknown field in __Field {}",
                         type_field_name
-                    )))
+                    )));
                 }
             };
 
@@ -2525,8 +2558,13 @@ impl __Schema {
             ));
         }
 
-        let name_arg_result: GraphQLResult<gson::Value> =
-            read_argument(args::NAME, field, query_field, variables, variable_definitions);
+        let name_arg_result: GraphQLResult<gson::Value> = read_argument(
+            args::NAME,
+            field,
+            query_field,
+            variables,
+            variable_definitions,
+        );
         let name_arg: Option<String> = match name_arg_result {
             // This builder (too) is overloaded and the arg is not present in all uses
             Err(_) => None,
@@ -2596,7 +2634,7 @@ impl __Schema {
                     return Err(GraphQLError::internal(format!(
                         "unknown field on __Type: {}",
                         type_field_name
-                    )))
+                    )));
                 }
                 Some(f) => builder_fields.push(__TypeSelection {
                     alias: alias_or_name(&selection_field),
@@ -2613,8 +2651,11 @@ impl __Schema {
                                     let mut f_builders: Vec<__FieldBuilder> = vec![];
 
                                     for vec_field in vec_fields {
-                                        if [introspection::TYPE.to_string(), introspection::SCHEMA.to_string()]
-                                            .contains(&vec_field.name())
+                                        if [
+                                            introspection::TYPE.to_string(),
+                                            introspection::SCHEMA.to_string(),
+                                        ]
+                                        .contains(&vec_field.name())
                                         {
                                             continue;
                                         }
@@ -2752,7 +2793,7 @@ impl __Schema {
                             return Err(GraphQLError::internal(format!(
                                 "unexpected field {} type on __Type",
                                 type_field_name
-                            )))
+                            )));
                         }
                     },
                 }),
@@ -2819,7 +2860,7 @@ impl __Schema {
                         "unknown field {} in {}",
                         field_name,
                         __Directive::TYPE,
-                    )))
+                    )));
                 }
             };
 
@@ -2872,7 +2913,7 @@ impl __Schema {
                             return Err(GraphQLError::internal(format!(
                                 "unknown field in __Schema: {}",
                                 field_name
-                            )))
+                            )));
                         }
                         Some(f) => {
                             builder_fields.push(__SchemaSelection {
@@ -2955,7 +2996,7 @@ impl __Schema {
                                         return Err(GraphQLError::internal(format!(
                                             "unexpected field {} type on __Schema",
                                             field_name
-                                        )))
+                                        )));
                                     }
                                 },
                             })

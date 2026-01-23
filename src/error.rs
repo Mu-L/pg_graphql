@@ -106,7 +106,6 @@ impl GraphQLError {
             message: message.into(),
         }
     }
-
 }
 
 /// Type alias for Results that use GraphQLError

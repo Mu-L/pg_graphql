@@ -8,7 +8,7 @@ use pgrx::datum::DatumWithOid;
 use pgrx::pg_sys::PgBuiltInOids;
 use pgrx::prelude::*;
 use pgrx::spi::SpiClient;
-use pgrx::{direct_function_call, JsonB};
+use pgrx::{JsonB, direct_function_call};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::cmp;
 use std::collections::HashSet;
@@ -30,7 +30,7 @@ pub fn quote_literal(ident: &str) -> String {
 
 pub fn rand_block_name() -> String {
     use rand::distributions::Alphanumeric;
-    use rand::{thread_rng, Rng};
+    use rand::{Rng, thread_rng};
     quote_ident(
         &thread_rng()
             .sample_iter(&Alphanumeric)
@@ -143,7 +143,9 @@ impl Table {
 
         let clause = frags.join(", ");
 
-        format!("translate(encode(convert_to(jsonb_build_array({clause})::text, 'utf-8'), 'base64'), E'\n', '')")
+        format!(
+            "translate(encode(convert_to(jsonb_build_array({clause})::text, 'utf-8'), 'base64'), E'\n', '')"
+        )
     }
 
     #[allow(clippy::only_used_in_recursion)]
@@ -575,7 +577,9 @@ impl FunctionCallBuilder {
         let query = match &self.return_type_builder {
             FuncCallReturnTypeBuilder::Scalar | FuncCallReturnTypeBuilder::List => {
                 let type_adjustment_clause = apply_suffix_casts(self.function.type_oid);
-                format!("select to_jsonb({func_schema}.{func_name}{args_clause}{type_adjustment_clause}) {block_name};")
+                format!(
+                    "select to_jsonb({func_schema}.{func_name}{args_clause}{type_adjustment_clause}) {block_name};"
+                )
             }
             FuncCallReturnTypeBuilder::Node(node_builder) => {
                 let select_clause = node_builder.to_sql(block_name, param_context)?;
@@ -584,7 +588,9 @@ impl FunctionCallBuilder {
                 } else {
                     select_clause
                 };
-                format!("select coalesce((select {select_clause} from {func_schema}.{func_name}{args_clause} {block_name} where not ({block_name} is null)), null::jsonb);")
+                format!(
+                    "select coalesce((select {select_clause} from {func_schema}.{func_name}{args_clause} {block_name} where not ({block_name} is null)), null::jsonb);"
+                )
             }
             FuncCallReturnTypeBuilder::Connection(connection_builder) => {
                 let from_clause = format!("{func_schema}.{func_name}{args_clause}");
@@ -711,7 +717,7 @@ impl FilterBuilderElem {
                                         _ => {
                                             return Err(GraphQLError::sql_generation(
                                                 "Error transpiling Is filter value",
-                                            ))
+                                            ));
                                         }
                                     }
                                 }
@@ -918,7 +924,9 @@ impl ConnectionBuilder {
                 let input_block_name = &from_function.input_block_name;
                 let quoted_input_schema = quote_ident(&from_function.input_table.schema);
                 let quoted_input_table = quote_ident(&from_function.input_table.name);
-                format!("{quoted_func_schema}.{quoted_func}({input_block_name}::{quoted_input_schema}.{quoted_input_table}) {quoted_block_name}")
+                format!(
+                    "{quoted_func_schema}.{quoted_func}({input_block_name}::{quoted_input_schema}.{quoted_input_table}) {quoted_block_name}"
+                )
             }
             None => {
                 format!("{quoted_schema}.{quoted_table} {quoted_block_name}")

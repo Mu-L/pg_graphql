@@ -2,8 +2,8 @@ use crate::constants::{
     aggregate, args, connection, introspection, mutation, page_info, pagination,
 };
 use crate::sql_types::*;
-use cached::proc_macro::cached;
 use cached::SizedCache;
+use cached::proc_macro::cached;
 use itertools::Itertools;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -1727,42 +1727,42 @@ impl ___Type for ConnectionType {
         let mut fields = vec![edge, page_info];
 
         // Conditionally add totalCount based on the directive
-        if let Some(total_count_directive) = self.table.directives.total_count.as_ref() {
-            if total_count_directive.enabled {
-                let total_count = __Field {
-                    name_: connection::TOTAL_COUNT.to_string(),
-                    type_: __Type::NonNull(NonNullType {
-                        type_: Box::new(__Type::Scalar(Scalar::Int)),
-                    }),
-                    args: vec![],
-                    description: Some(
-                        "The total number of records matching the `filter` criteria".to_string(),
-                    ),
-                    deprecation_reason: None,
-                    sql_type: None,
-                };
-                fields.push(total_count);
-            }
+        if let Some(total_count_directive) = self.table.directives.total_count.as_ref()
+            && total_count_directive.enabled
+        {
+            let total_count = __Field {
+                name_: connection::TOTAL_COUNT.to_string(),
+                type_: __Type::NonNull(NonNullType {
+                    type_: Box::new(__Type::Scalar(Scalar::Int)),
+                }),
+                args: vec![],
+                description: Some(
+                    "The total number of records matching the `filter` criteria".to_string(),
+                ),
+                deprecation_reason: None,
+                sql_type: None,
+            };
+            fields.push(total_count);
         }
 
         // Conditionally add aggregate based on the directive
-        if let Some(aggregate_directive) = self.table.directives.aggregate.as_ref() {
-            if aggregate_directive.enabled {
-                let aggregate = __Field {
-                    name_: "aggregate".to_string(),
-                    type_: __Type::Aggregate(AggregateType {
-                        table: Arc::clone(&self.table),
-                        schema: self.schema.clone(),
-                    }),
-                    args: vec![],
-                    description: Some(format!(
-                        "Aggregate functions calculated on the collection of `{table_base_type_name}`"
-                    )),
-                    deprecation_reason: None,
-                    sql_type: None,
-                };
-                fields.push(aggregate);
-            }
+        if let Some(aggregate_directive) = self.table.directives.aggregate.as_ref()
+            && aggregate_directive.enabled
+        {
+            let aggregate = __Field {
+                name_: "aggregate".to_string(),
+                type_: __Type::Aggregate(AggregateType {
+                    table: Arc::clone(&self.table),
+                    schema: self.schema.clone(),
+                }),
+                args: vec![],
+                description: Some(format!(
+                    "Aggregate functions calculated on the collection of `{table_base_type_name}`"
+                )),
+                deprecation_reason: None,
+                sql_type: None,
+            };
+            fields.push(aggregate);
         }
 
         Some(fields)
@@ -4228,46 +4228,46 @@ impl __Schema {
             // Add Aggregate types if the table is selectable
             if self.graphql_table_select_types_are_valid(table) {
                 // Only add aggregate types if the directive is enabled
-                if let Some(aggregate_directive) = table.directives.aggregate.as_ref() {
-                    if aggregate_directive.enabled {
-                        types_.push(__Type::Aggregate(AggregateType {
+                if let Some(aggregate_directive) = table.directives.aggregate.as_ref()
+                    && aggregate_directive.enabled
+                {
+                    types_.push(__Type::Aggregate(AggregateType {
+                        table: Arc::clone(table),
+                        schema: Arc::clone(&schema_rc),
+                    }));
+                    // Check if there are any columns aggregatable by sum/avg
+                    if table
+                        .columns
+                        .iter()
+                        .any(|c| is_aggregatable(c, &AggregateOperation::Sum))
+                    {
+                        types_.push(__Type::AggregateNumeric(AggregateNumericType {
                             table: Arc::clone(table),
                             schema: Arc::clone(&schema_rc),
+                            aggregate_op: AggregateOperation::Sum,
                         }));
-                        // Check if there are any columns aggregatable by sum/avg
-                        if table
-                            .columns
-                            .iter()
-                            .any(|c| is_aggregatable(c, &AggregateOperation::Sum))
-                        {
-                            types_.push(__Type::AggregateNumeric(AggregateNumericType {
-                                table: Arc::clone(table),
-                                schema: Arc::clone(&schema_rc),
-                                aggregate_op: AggregateOperation::Sum,
-                            }));
-                            types_.push(__Type::AggregateNumeric(AggregateNumericType {
-                                table: Arc::clone(table),
-                                schema: Arc::clone(&schema_rc),
-                                aggregate_op: AggregateOperation::Avg,
-                            }));
-                        }
-                        // Check if there are any columns aggregatable by min/max
-                        if table
-                            .columns
-                            .iter()
-                            .any(|c| is_aggregatable(c, &AggregateOperation::Min))
-                        {
-                            types_.push(__Type::AggregateNumeric(AggregateNumericType {
-                                table: Arc::clone(table),
-                                schema: Arc::clone(&schema_rc),
-                                aggregate_op: AggregateOperation::Min,
-                            }));
-                            types_.push(__Type::AggregateNumeric(AggregateNumericType {
-                                table: Arc::clone(table),
-                                schema: Arc::clone(&schema_rc),
-                                aggregate_op: AggregateOperation::Max,
-                            }));
-                        }
+                        types_.push(__Type::AggregateNumeric(AggregateNumericType {
+                            table: Arc::clone(table),
+                            schema: Arc::clone(&schema_rc),
+                            aggregate_op: AggregateOperation::Avg,
+                        }));
+                    }
+                    // Check if there are any columns aggregatable by min/max
+                    if table
+                        .columns
+                        .iter()
+                        .any(|c| is_aggregatable(c, &AggregateOperation::Min))
+                    {
+                        types_.push(__Type::AggregateNumeric(AggregateNumericType {
+                            table: Arc::clone(table),
+                            schema: Arc::clone(&schema_rc),
+                            aggregate_op: AggregateOperation::Min,
+                        }));
+                        types_.push(__Type::AggregateNumeric(AggregateNumericType {
+                            table: Arc::clone(table),
+                            schema: Arc::clone(&schema_rc),
+                            aggregate_op: AggregateOperation::Max,
+                        }));
                     }
                 }
             }
@@ -4302,10 +4302,10 @@ impl __Schema {
         let mutation = MutationType {
             schema: Arc::new(self.clone()),
         };
-        if let Some(fields) = mutation.fields(true) {
-            if !fields.is_empty() {
-                return true;
-            }
+        if let Some(fields) = mutation.fields(true)
+            && !fields.is_empty()
+        {
+            return true;
         }
         false
     }
@@ -4641,22 +4641,22 @@ impl ___Type for AggregateNumericType {
         let mut fields = Vec::new();
 
         for col in self.table.columns.iter() {
-            if is_aggregatable(col, &self.aggregate_op) {
-                if let Some(scalar_type) = aggregate_result_type(col, &self.aggregate_op) {
-                    let field_name = self.schema.graphql_column_field_name(col);
-                    fields.push(__Field {
-                        name_: field_name.clone(),
-                        type_: __Type::Scalar(scalar_type),
-                        args: vec![],
-                        description: Some(format!(
-                            "{} of {} across all matching records",
-                            self.aggregate_op.capitalized_descriptive_term(),
-                            field_name
-                        )),
-                        deprecation_reason: None,
-                        sql_type: Some(NodeSQLType::Column(Arc::clone(col))),
-                    });
-                }
+            if is_aggregatable(col, &self.aggregate_op)
+                && let Some(scalar_type) = aggregate_result_type(col, &self.aggregate_op)
+            {
+                let field_name = self.schema.graphql_column_field_name(col);
+                fields.push(__Field {
+                    name_: field_name.clone(),
+                    type_: __Type::Scalar(scalar_type),
+                    args: vec![],
+                    description: Some(format!(
+                        "{} of {} across all matching records",
+                        self.aggregate_op.capitalized_descriptive_term(),
+                        field_name
+                    )),
+                    deprecation_reason: None,
+                    sql_type: Some(NodeSQLType::Column(Arc::clone(col))),
+                });
             }
         }
         if fields.is_empty() {

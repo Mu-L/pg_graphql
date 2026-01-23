@@ -78,8 +78,10 @@ pub fn gson_to_json(val: &Value) -> GraphQLResult<serde_json::Value> {
 
     let v = match val {
         Value::Absent => {
-            return Err(GraphQLError::internal("Encountered `Absent` value while transforming between GraphQL intermediate object notation and JSON"))
-        },
+            return Err(GraphQLError::internal(
+                "Encountered `Absent` value while transforming between GraphQL intermediate object notation and JSON",
+            ));
+        }
         Value::Null => JsonValue::Null,
         Value::Boolean(x) => JsonValue::Bool(x.to_owned()),
         Value::String(x) => JsonValue::String(x.to_owned()),
