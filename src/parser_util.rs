@@ -1,5 +1,5 @@
 use crate::error::{GraphQLError, GraphQLResult};
-use crate::graphql::{EnumSource, __InputValue, __Type, ___Type};
+use crate::graphql::{___Type, __InputValue, __Type, EnumSource};
 use crate::{gson, merge::merge};
 use graphql_parser::query::*;
 use std::collections::HashMap;
@@ -140,7 +140,7 @@ where
                     return Err(GraphQLError::validation(format!(
                         "Unknown directive {}",
                         directive_name
-                    )))
+                    )));
                 }
             }
         }
@@ -188,7 +188,7 @@ where
                         "no fragment named {} on type {}",
                         frag_name.as_ref(),
                         type_name
-                    )))
+                    )));
                 }
             };
 
@@ -306,7 +306,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         return Err(GraphQLError::type_error(format!(
                             "Invalid input for {:?} type",
                             scalar
-                        )))
+                        )));
                     }
                 },
                 Scalar::String(Some(max_length)) => match value {
@@ -319,7 +319,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                                     "Invalid input for {} type. Maximum character length {}",
                                     scalar.name().unwrap_or("String".to_string()),
                                     max_length
-                                )))
+                                )));
                             }
                         }
                     }
@@ -327,7 +327,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         return Err(GraphQLError::type_error(format!(
                             "Invalid input for {:?} type",
                             scalar
-                        )))
+                        )));
                     }
                 },
                 Scalar::Int => match value {
@@ -338,7 +338,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         return Err(GraphQLError::type_error(format!(
                             "Invalid input for {:?} type",
                             scalar
-                        )))
+                        )));
                     }
                 },
                 Scalar::Float => match value {
@@ -349,7 +349,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         return Err(GraphQLError::type_error(format!(
                             "Invalid input for {:?} type",
                             scalar
-                        )))
+                        )));
                     }
                 },
                 Scalar::Boolean => match value {
@@ -358,7 +358,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         return Err(GraphQLError::type_error(format!(
                             "Invalid input for {:?} type",
                             scalar
-                        )))
+                        )));
                     }
                 },
                 Scalar::Date => {
@@ -369,7 +369,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {:?} type",
                                 scalar
-                            )))
+                            )));
                         }
                     }
                 }
@@ -381,7 +381,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {:?} type",
                                 scalar
-                            )))
+                            )));
                         }
                     }
                 }
@@ -393,7 +393,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {:?} type",
                                 scalar
-                            )))
+                            )));
                         }
                     }
                 }
@@ -406,7 +406,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         return Err(GraphQLError::type_error(format!(
                             "Invalid input for {:?} type",
                             scalar
-                        )))
+                        )));
                     }
                 },
                 Scalar::UUID => {
@@ -417,7 +417,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {:?} type",
                                 scalar
-                            )))
+                            )));
                         }
                     }
                 }
@@ -429,7 +429,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {:?} type",
                                 scalar
-                            )))
+                            )));
                         }
                     }
                 }
@@ -441,7 +441,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {:?} type",
                                 scalar
-                            )))
+                            )));
                         }
                     }
                 }
@@ -453,7 +453,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {:?} type",
                                 scalar
-                            )))
+                            )));
                         }
                     }
                 }
@@ -463,7 +463,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         return Err(GraphQLError::type_error(format!(
                             "Invalid input for {:?} type. String required",
                             scalar
-                        )))
+                        )));
                     }
                 },
                 // No validation possible for unknown types. Lean on postgres for parsing
@@ -499,7 +499,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {} type",
                                 enum_name
-                            )))
+                            )));
                         }
                     }
                 }
@@ -507,7 +507,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                     return Err(GraphQLError::type_error(format!(
                         "Invalid input for {} type",
                         enum_name
-                    )))
+                    )));
                 }
             }
         }
@@ -528,7 +528,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                             return Err(GraphQLError::type_error(format!(
                                 "Invalid input for {} type",
                                 enum_name
-                            )))
+                            )));
                         }
                     }
                 }
@@ -536,7 +536,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                     return Err(GraphQLError::type_error(format!(
                         "Invalid input for {} type",
                         enum_name
-                    )))
+                    )));
                 }
             }
         }
@@ -565,7 +565,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
             let out_elem = validate_arg_from_type(&inner_type, value)?;
             match out_elem {
                 GsonValue::Absent | GsonValue::Null => {
-                    return Err(GraphQLError::type_error("Invalid input for NonNull type"))
+                    return Err(GraphQLError::type_error("Invalid input for NonNull type"));
                 }
                 _ => out_elem,
             }
@@ -579,7 +579,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
             return Err(GraphQLError::type_error(format!(
                 "Invalid Type used as input argument {}",
                 type_.name().unwrap_or_default()
-            )))
+            )));
         }
     };
     Ok(res)
@@ -643,7 +643,7 @@ pub fn validate_arg_from_input_object(
             return Err(GraphQLError::type_error(format!(
                 "Invalid input for {} type",
                 input_type_name
-            )))
+            )));
         }
     };
     Ok(res)
