@@ -55,16 +55,21 @@ jobs:
         uses: actions/cache@v4
         id: cargo-bins
         with:
-          path: |
-            ~/.cargo/bin/cargo-llvm-cov
-            ~/.cargo/bin/cargo-pgrx
+          path: ${{ github.workspace }}/.cargo-bin-cache
           key: cargo-bins-${{ runner.os }}-llvm-cov-pgrx-${{ env.PGRX_VERSION }}
+
+      - name: Restore cargo binaries from cache
+        if: steps.cargo-bins.outputs.cache-hit == 'true'
+        run: |
+          cp ${{ github.workspace }}/.cargo-bin-cache/* ~/.cargo/bin/
 
       - name: Install cargo binaries
         if: steps.cargo-bins.outputs.cache-hit != 'true'
         run: |
           cargo install cargo-llvm-cov
           cargo install cargo-pgrx --version ${{ env.PGRX_VERSION }} --locked
+          mkdir -p ${{ github.workspace }}/.cargo-bin-cache
+          cp ~/.cargo/bin/cargo-llvm-cov ~/.cargo/bin/cargo-pgrx ${{ github.workspace }}/.cargo-bin-cache/
 
       - name: Cache pgrx init
         uses: actions/cache@v4
@@ -84,10 +89,10 @@ jobs:
       - name: Build and run coverage
         run: |
           export PATH=$PATH:/usr/lib/postgresql/${{ env.PG_VERSION }}/bin
-          
+
           sudo chmod a+rw /usr/share/postgresql/${{ env.PG_VERSION }}/extension
           sudo chmod a+rw /usr/lib/postgresql/${{ env.PG_VERSION }}/lib/
-          
+
           cargo pgrx install
           source <(cargo llvm-cov show-env --export-prefix)
           cargo llvm-cov clean --workspace
