@@ -95,7 +95,7 @@ jobs:
           sudo chmod a+rw /usr/lib/postgresql/${{ env.PG_VERSION }}/lib/
 
           cargo pgrx install
-          source <(cargo llvm-cov show-env --export-prefix)
+          source <(cargo llvm-cov show-env --sh)
           cargo llvm-cov clean --workspace
           cargo build
           cp ./target/debug/libpg_graphql.so /usr/lib/postgresql/${{ env.PG_VERSION }}/lib/pg_graphql.so
