@@ -13,6 +13,7 @@ env:
   PG_VERSION: 18
   PGRX_VERSION: 0.16.1
 
+# USELESS COMMENT TO TRIGGER BUILD AND TEST CACHE
 jobs:
   code-coverage:
     name: Code Coverage
