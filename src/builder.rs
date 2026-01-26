@@ -1039,14 +1039,8 @@ pub struct NodeBuilder {
 
 #[derive(Clone, Debug)]
 pub struct NodeByPkBuilder {
-    // args - map of column name to value
     pub pk_values: HashMap<String, serde_json::Value>,
-
-    pub _alias: String,
-
-    // metadata
     pub table: Arc<Table>,
-
     pub selections: Vec<NodeSelection>,
 }
 
@@ -2181,7 +2175,6 @@ where
     T::Value: Hash,
 {
     let type_ = field.type_().unmodified_type();
-    let alias = alias_or_name(query_field);
 
     // This function is only called for Node types from resolve_selection_set
     let xtype = match type_ {
@@ -2225,7 +2218,15 @@ where
 
     // Need values for all primary key columns
     if pk_values.len() != pkey.column_names.len() {
-        return Err(GraphQLError::argument("All primary key columns must be provided"));
+        let missing_cols: Vec<_> = pkey
+            .column_names
+            .iter()
+            .filter(|col| !pk_values.contains_key(*col))
+            .collect();
+        return Err(GraphQLError::argument(format!(
+            "Missing primary key column(s): {}",
+            missing_cols.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ")
+        )));
     }
 
     let mut builder_fields = vec![];
@@ -2345,7 +2346,6 @@ where
 
     Ok(NodeByPkBuilder {
         pk_values,
-        _alias: alias,
         table: Arc::clone(&xtype.table),
         selections: builder_fields,
     })

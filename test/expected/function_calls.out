@@ -825,7 +825,7 @@ begin;
                                      "name": null,          +
                                      "ofType": {            +
                                          "kind": "SCALAR",  +
-                                         "name": "UUID"     +
+                                         "name": "Uuid"     +
                                      }                      +
                                  }                          +
                              }                              +
@@ -1687,7 +1687,7 @@ begin;
                                      "name": null,                     +
                                      "ofType": {                       +
                                          "kind": "SCALAR",             +
-                                         "name": "UUID"                +
+                                         "name": "Uuid"                +
                                      }                                 +
                                  }                                     +
                              }                                         +

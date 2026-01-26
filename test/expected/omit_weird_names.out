@@ -133,13 +133,13 @@ begin;
                      "name": "TimeListFilter"     +
                  },                               +
                  {                                +
-                     "name": "UUID"               +
+                     "name": "Uuid"               +
                  },                               +
                  {                                +
-                     "name": "UUIDFilter"         +
+                     "name": "UuidFilter"         +
                  },                               +
                  {                                +
-                     "name": "UUIDListFilter"     +
+                     "name": "UuidListFilter"     +
                  },                               +
                  {                                +
                      "name": "__Directive"        +

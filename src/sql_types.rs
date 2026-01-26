@@ -624,8 +624,8 @@ pub enum SupportedPrimaryKeyType {
     VarChar,  // varchar
     Char,     // char, bpchar
     CiText,   // citext
-    // UUID
-    UUID,     // uuid
+    // Uuid
+    Uuid,     // uuid
 }
 
 impl SupportedPrimaryKeyType {
@@ -640,8 +640,8 @@ impl SupportedPrimaryKeyType {
             "varchar" => Some(Self::VarChar),
             "char" | "bpchar" => Some(Self::Char),
             "citext" => Some(Self::CiText),
-            // UUID
-            "uuid" => Some(Self::UUID),
+            // Uuid
+            "uuid" => Some(Self::Uuid),
             // Any other type is not supported
             _ => None,
         }

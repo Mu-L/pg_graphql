@@ -339,15 +339,15 @@ begin;
                  },                                                                                               +
                  {                                                                                                +
                      "kind": "SCALAR",                                                                            +
-                     "name": "UUID"                                                                               +
+                     "name": "Uuid"                                                                               +
                  },                                                                                               +
                  {                                                                                                +
                      "kind": "INPUT_OBJECT",                                                                      +
-                     "name": "UUIDFilter"                                                                         +
+                     "name": "UuidFilter"                                                                         +
                  },                                                                                               +
                  {                                                                                                +
                      "kind": "INPUT_OBJECT",                                                                      +
-                     "name": "UUIDListFilter"                                                                     +
+                     "name": "UuidListFilter"                                                                     +
                  },                                                                                               +
                  {                                                                                                +
                      "kind": "OBJECT",                                                                            +

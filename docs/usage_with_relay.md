@@ -21,7 +21,7 @@ Modify your `relay.config.js` file to reflect the following:
        nodeInterfaceIdVariableName: 'nodeId',
      },
      customScalarTypes: {
-       UUID: 'string',
+       Uuid: 'string',
        Datetime: 'string',
        JSON: 'string',
        BigInt: 'string',

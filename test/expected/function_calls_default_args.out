@@ -362,7 +362,7 @@ begin;
                                  "name": "h",             +
                                  "type": {                +
                                      "kind": "SCALAR",    +
-                                     "name": "UUID",      +
+                                     "name": "Uuid",      +
                                      "ofType": null       +
                                  },                       +
                                  "defaultValue": null     +

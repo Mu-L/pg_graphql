@@ -27,7 +27,7 @@ const config: CodegenConfig = {
       plugins: [],
       config: {
         scalars: {
-          UUID: 'string',
+          Uuid: 'string',
           Date: 'string',
           Time: 'string',
           Datetime: 'string',

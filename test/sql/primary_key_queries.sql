@@ -1,4 +1,6 @@
 begin;
+    savepoint a;
+
     -- Set up test tables with different primary key configurations
 
     -- Table with single column integer primary key
@@ -42,7 +44,7 @@ begin;
         ('doc-1', 'Document 1', 'Content 1'),
         ('doc-2', 'Document 2', 'Content 2');
 
-    savepoint a;
+    savepoint b;
 
     -- Test 1: Query a person by primary key (single integer column)
     select jsonb_pretty(
@@ -193,7 +195,7 @@ begin;
         $$)
     );
 
-    rollback to savepoint a;
+    rollback to savepoint b;
 
     -- Set up tables with relationships for connection and function tests
     create table author(
@@ -222,7 +224,7 @@ begin;
         (5, 'Great Expectations', 2),
         (6, 'Adventures of Tom Sawyer', 3);
 
-    -- Create a function that extends the author type
+    -- Create a function that takes the author type as its first argument
     create function public._book_count(rec public.author)
         returns int
         stable
@@ -575,6 +577,68 @@ begin;
                       title
                     }
                   }
+                }
+              }
+            }
+        $$)
+    );
+
+    -- Test 28: Aliases work correctly with ByPk fields
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              firstAuthor: authorByPk(id: 1) {
+                id
+                name
+              }
+              secondAuthor: authorByPk(id: 2) {
+                id
+                name
+              }
+            }
+        $$)
+    );
+
+    -- Test 29: Nested aliases within ByPk queries
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              myAuthor: authorByPk(id: 1) {
+                authorId: id
+                authorName: name
+                books: bookCollection {
+                  edges {
+                    node {
+                      bookId: id
+                      bookTitle: title
+                    }
+                  }
+                }
+              }
+            }
+        $$)
+    );
+
+    -- Test 30: ByPk fields are only exposed for tables with supported primary key types
+    rollback to savepoint a;
+
+    -- Create tables with various primary key configurations
+    create table no_pk_table(value int);                        -- No primary key
+    create table float_pk_table(id float primary key);          -- Unsupported: float
+    create table bool_pk_table(id boolean primary key);         -- Unsupported: boolean
+    create table bytea_pk_table(id bytea primary key);          -- Unsupported: bytea
+    create table smallint_pk_table(id smallint primary key);    -- Supported: smallint
+    create table bigint_pk_table(id bigint primary key);        -- Supported: bigint
+
+    -- Query the schema to verify which tables have ByPk fields
+    -- Expected ByPk fields: smallintPkTableByPk, bigintPkTableByPk
+    -- Should NOT have: noPkTableByPk, floatPkTableByPk, boolPkTableByPk, byteaPkTableByPk
+    select jsonb_pretty(
+        graphql.resolve($$
+            {
+              __type(name: "Query") {
+                fields {
+                  name
                 }
               }
             }
