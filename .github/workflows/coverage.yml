@@ -13,7 +13,6 @@ env:
   PG_VERSION: 18
   PGRX_VERSION: 0.16.1
 
-# USELESS COMMENT TO TRIGGER BUILD AND TEST CACHE
 jobs:
   code-coverage:
     name: Code Coverage
@@ -28,7 +27,7 @@ jobs:
           wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /etc/apt/trusted.gpg.d/pgdg.asc &>/dev/null
 
       - name: Cache APT packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: apt-cache
         with:
           path: ~/apt-cache
@@ -53,7 +52,7 @@ jobs:
           components: llvm-tools-preview
 
       - name: Cache cargo binaries
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cargo-bins
         with:
           path: ${{ github.workspace }}/.cargo-bin-cache
@@ -73,7 +72,7 @@ jobs:
           cp ~/.cargo/bin/cargo-llvm-cov ~/.cargo/bin/cargo-pgrx ${{ github.workspace }}/.cargo-bin-cache/
 
       - name: Cache pgrx init
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: pgrx-init
         with:
           path: ~/.pgrx
