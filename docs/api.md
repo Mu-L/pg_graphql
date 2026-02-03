@@ -1880,7 +1880,7 @@ create table item(
           "itemId": 1,
           "productId": 2,
           "quantity": 1,
-          "price": 24.99
+          "price": "24.99"
         }
       }
     }
