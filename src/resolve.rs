@@ -257,6 +257,26 @@ where
                                 }),
                             }
                         }
+                        __Type::Node(_) => {
+                            // Node types at Query level are *ByPk fields with primary key column args
+                            let node_by_pk_builder = to_node_by_pk_builder(
+                                field_def,
+                                selection,
+                                &fragment_definitions,
+                                variables,
+                                variable_definitions,
+                            );
+
+                            match node_by_pk_builder {
+                                Ok(builder) => match builder.execute() {
+                                    Ok(d) => {
+                                        res_data[alias_or_name(selection)] = d;
+                                    }
+                                    Err(msg) => res_errors.push(ErrorMessage { message: msg.to_string() }),
+                                },
+                                Err(msg) => res_errors.push(ErrorMessage { message: msg.to_string() }),
+                            }
+                        }
                         __Type::__Type(_) => {
                             let __type_builder = schema_type.to_type_builder(
                                 field_def,
