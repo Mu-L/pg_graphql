@@ -1081,7 +1081,7 @@ begin;
                                          "name": null,                 +
                                          "ofType": {                   +
                                              "kind": "SCALAR",         +
-                                             "name": "Uuid"            +
+                                             "name": "UUID"            +
                                          }                             +
                                      }                                 +
                                  }                                     +
@@ -1102,7 +1102,7 @@ begin;
                          "name": "getUuidArrayItem",                   +
                          "type": {                                     +
                              "kind": "SCALAR",                         +
-                             "name": "Uuid",                           +
+                             "name": "UUID",                           +
                              "ofType": null                            +
                          },                                            +
                          "description": null                           +
@@ -1334,7 +1334,7 @@ begin;
                              "name": null,                             +
                              "ofType": {                               +
                                  "kind": "SCALAR",                     +
-                                 "name": "Uuid",                       +
+                                 "name": "UUID",                       +
                                  "ofType": null                        +
                              }                                         +
                          },                                            +
@@ -2462,7 +2462,7 @@ begin;
                                          "name": null,         +
                                          "ofType": {           +
                                              "kind": "SCALAR", +
-                                             "name": "Uuid"    +
+                                             "name": "UUID"    +
                                          }                     +
                                      }                         +
                                  }                             +
@@ -2483,7 +2483,7 @@ begin;
                          "name": "getUuidArrayItem",           +
                          "type": {                             +
                              "kind": "SCALAR",                 +
-                             "name": "Uuid",                   +
+                             "name": "UUID",                   +
                              "ofType": null                    +
                          },                                    +
                          "description": null                   +
@@ -2692,7 +2692,7 @@ begin;
                              "name": null,                     +
                              "ofType": {                       +
                                  "kind": "SCALAR",             +
-                                 "name": "Uuid",               +
+                                 "name": "UUID",               +
                                  "ofType": null                +
                              }                                 +
                          },                                    +

@@ -903,7 +903,7 @@ pub enum Scalar {
     Time,
     Datetime,
     BigInt,
-    Uuid,
+    UUID,
     JSON,
     Cursor,
     BigFloat,
@@ -1638,7 +1638,7 @@ impl ___Type for Scalar {
                 Self::Date => "Date",
                 Self::Time => "Time",
                 Self::BigInt => "BigInt",
-                Self::Uuid => "Uuid",
+                Self::UUID => "UUID",
                 Self::JSON => "JSON",
                 Self::Cursor => "Cursor",
                 Self::BigFloat => "BigFloat",
@@ -1660,7 +1660,7 @@ impl ___Type for Scalar {
                 Self::Date => "A date without time information",
                 Self::Time => "A time without date information",
                 Self::Datetime => "A date and time",
-                Self::Uuid => "A universally unique identifier",
+                Self::UUID => "A universally unique identifier",
                 Self::JSON => "A Javascript Object Notation value serialized as a string",
                 Self::Cursor => {
                     "An opaque string using for tracking a position in results during pagination"
@@ -1944,7 +1944,7 @@ impl Type {
                     3802 => __Type::Scalar(Scalar::JSON),       // jsonb
                     114 => __Type::Scalar(Scalar::JSON),        // json
                     1083 => __Type::Scalar(Scalar::Time),       // time without time zone
-                    2950 => __Type::Scalar(Scalar::Uuid),       // uuid
+                    2950 => __Type::Scalar(Scalar::UUID),       // uuid
                     1700 => __Type::Scalar(Scalar::BigFloat),   // numeric
                     25 => __Type::Scalar(Scalar::String(None)), // text
                     // char, bpchar, varchar
@@ -3520,7 +3520,7 @@ impl ___Type for FilterTypeType {
                     // IDFilter only supports equality
                     Scalar::ID => vec![FilterOp::Equal],
                     // UUIDs are not ordered
-                    Scalar::Uuid => {
+                    Scalar::UUID => {
                         vec![
                             FilterOp::Equal,
                             FilterOp::NotEqual,
@@ -3823,7 +3823,7 @@ impl ___Type for FilterEntityType {
                                 | Scalar::Float
                                 | Scalar::String(_)
                                 | Scalar::Boolean
-                                | Scalar::Uuid
+                                | Scalar::UUID
                                 | Scalar::BigInt
                                 | Scalar::BigFloat
                                 | Scalar::Time
@@ -4087,7 +4087,7 @@ impl __Schema {
             __Type::Scalar(Scalar::Time),
             __Type::Scalar(Scalar::Datetime),
             __Type::Scalar(Scalar::BigInt),
-            __Type::Scalar(Scalar::Uuid),
+            __Type::Scalar(Scalar::UUID),
             __Type::Scalar(Scalar::JSON),
             __Type::Scalar(Scalar::Cursor),
             __Type::Scalar(Scalar::BigFloat),
@@ -4134,7 +4134,7 @@ impl __Schema {
                 schema: Arc::clone(&schema_rc),
             }),
             __Type::FilterType(FilterTypeType {
-                entity: FilterableType::Scalar(Scalar::Uuid),
+                entity: FilterableType::Scalar(Scalar::UUID),
                 schema: Arc::clone(&schema_rc),
             }),
             __Type::FilterType(FilterTypeType {
@@ -4195,7 +4195,7 @@ impl __Schema {
             }),
             __Type::FilterType(FilterTypeType {
                 entity: FilterableType::List(ListType {
-                    type_: Box::new(__Type::Scalar(Scalar::Uuid)),
+                    type_: Box::new(__Type::Scalar(Scalar::UUID)),
                 }),
                 schema: Arc::clone(&schema_rc),
             }),
@@ -4736,7 +4736,7 @@ fn sql_type_to_scalar(sql_type_name: &str, typmod: Option<i32>) -> Option<Scalar
         "date" => Some(Scalar::Date),
         "time" | "timetz" => Some(Scalar::Time),
         "timestamp" | "timestamptz" => Some(Scalar::Datetime),
-        "uuid" => Some(Scalar::Uuid),
+        "uuid" => Some(Scalar::UUID),
         "json" | "jsonb" => Some(Scalar::JSON),
         _ => Some(Scalar::Opaque), // Fallback for unknown types
     }

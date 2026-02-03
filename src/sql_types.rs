@@ -585,9 +585,9 @@ impl Table {
         }
 
         // Check that all primary key columns have supported types
-        pk_columns.iter().all(|col| {
-            SupportedPrimaryKeyType::from_type_name(&col.type_name).is_some()
-        })
+        pk_columns
+            .iter()
+            .all(|col| SupportedPrimaryKeyType::from_type_name(&col.type_name).is_some())
     }
 
     pub fn is_any_column_selectable(&self) -> bool {
@@ -620,12 +620,12 @@ pub enum SupportedPrimaryKeyType {
     BigInt,   // bigint, int8
     SmallInt, // smallint, int2
     // String types
-    Text,     // text
-    VarChar,  // varchar
-    Char,     // char, bpchar
-    CiText,   // citext
-    // Uuid
-    Uuid,     // uuid
+    Text,    // text
+    VarChar, // varchar
+    Char,    // char, bpchar
+    CiText,  // citext
+    // UUID
+    UUID, // uuid
 }
 
 impl SupportedPrimaryKeyType {
@@ -640,8 +640,8 @@ impl SupportedPrimaryKeyType {
             "varchar" => Some(Self::VarChar),
             "char" | "bpchar" => Some(Self::Char),
             "citext" => Some(Self::CiText),
-            // Uuid
-            "uuid" => Some(Self::Uuid),
+            // UUID
+            "uuid" => Some(Self::UUID),
             // Any other type is not supported
             _ => None,
         }

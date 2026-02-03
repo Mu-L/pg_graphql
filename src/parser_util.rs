@@ -409,7 +409,7 @@ pub fn validate_arg_from_type(type_: &__Type, value: &gson::Value) -> GraphQLRes
                         )))
                     }
                 },
-                Scalar::Uuid => {
+                Scalar::UUID => {
                     match value {
                         // XXX: future - validate uuid here
                         GsonValue::Absent | GsonValue::Null | GsonValue::String(_) => value.clone(),

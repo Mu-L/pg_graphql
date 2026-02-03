@@ -49,7 +49,7 @@ begin;
                                  "name": "pUserId",                    +
                                  "type": {                             +
                                      "kind": "SCALAR",                 +
-                                     "name": "Uuid",                   +
+                                     "name": "UUID",                   +
                                      "ofType": null                    +
                                  },                                    +
                                  "defaultValue": null                  +

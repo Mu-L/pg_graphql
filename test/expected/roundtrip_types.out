@@ -435,7 +435,7 @@ begin;
                      "name": "typeUuid",        +
                      "type": {                  +
                          "kind": "SCALAR",      +
-                         "name": "Uuid",        +
+                         "name": "UUID",        +
                          "ofType": null         +
                      }                          +
                  },                             +
@@ -625,7 +625,7 @@ begin;
                      "name": "typeUuid",              +
                      "type": {                        +
                          "kind": "INPUT_OBJECT",      +
-                         "name": "UuidFilter",        +
+                         "name": "UUIDFilter",        +
                          "ofType": null               +
                      }                                +
                  },                                   +

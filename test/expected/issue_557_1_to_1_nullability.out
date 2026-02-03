@@ -68,7 +68,7 @@ begin;
                          "name": null,                                                       +
                          "ofType": {                                                         +
                              "kind": "SCALAR",                                               +
-                             "name": "Uuid",                                                 +
+                             "name": "UUID",                                                 +
                              "description": "A universally unique identifier"                +
                          },                                                                  +
                          "description": null                                                 +
@@ -163,7 +163,7 @@ begin;
                          "name": null,                                                       +
                          "ofType": {                                                         +
                              "kind": "SCALAR",                                               +
-                             "name": "Uuid",                                                 +
+                             "name": "UUID",                                                 +
                              "description": "A universally unique identifier"                +
                          },                                                                  +
                          "description": null                                                 +
@@ -255,7 +255,7 @@ begin;
                          "name": null,                                                       +
                          "ofType": {                                                         +
                              "kind": "SCALAR",                                               +
-                             "name": "Uuid",                                                 +
+                             "name": "UUID",                                                 +
                              "description": "A universally unique identifier"                +
                          },                                                                  +
                          "description": null                                                 +
