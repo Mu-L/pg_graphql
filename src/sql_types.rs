@@ -625,7 +625,7 @@ pub enum SupportedPrimaryKeyType {
     Char,    // char, bpchar
     CiText,  // citext
     // UUID
-    UUID, // uuid
+    Uuid, // uuid
 }
 
 impl SupportedPrimaryKeyType {
@@ -641,7 +641,7 @@ impl SupportedPrimaryKeyType {
             "char" | "bpchar" => Some(Self::Char),
             "citext" => Some(Self::CiText),
             // UUID
-            "uuid" => Some(Self::UUID),
+            "uuid" => Some(Self::Uuid),
             // Any other type is not supported
             _ => None,
         }

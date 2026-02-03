@@ -1270,7 +1270,7 @@ impl ___Type for QueryType {
                                             col_name
                                         )
                                     })
-                                    .unwrap_or_else(|_| __Type::Scalar(Scalar::String(None)));
+                                    .unwrap_or(__Type::Scalar(Scalar::String(None)));
 
                                 // Use graphql_column_field_name to convert snake_case to camelCase if needed
                                 let arg_name = self.schema.graphql_column_field_name(col);
